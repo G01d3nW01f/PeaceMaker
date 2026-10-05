@@ -16,7 +16,7 @@ struct Args {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // 1. clap による引数解析
+    // 1. clap 
     let args = Args::parse();
     let target_url = Url::parse(&args.target_url)?;
 
@@ -28,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    // ルートドメインの簡易抽出 (例: sub.example.com -> example.com)
+    // root domain
     let host_parts: Vec<&str> = target_host.split('.').collect();
     let root_domain = if host_parts.len() >= 2 {
         format!(
@@ -42,14 +42,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("[*] Target URL: {}", target_url);
 
-    // 2. クローリング実行 (domain_collect)
+    // 2. crawling
     let (target_urls, subdomain_urls) = crawl(&target_url, &target_host, &root_domain).await?;
 
-    // 3. ファイル作成 (filemake)
+    // 3. file make
     save_list("targetlist.txt", &target_urls)?;
     save_list("subdomain_list.txt", &subdomain_urls)?;
 
-    // 4. nucleiスキャン実行 (methods)
+    // 4. nuclei scan
     run_nuclei("targetlist.txt")?;
 
     Ok(())
