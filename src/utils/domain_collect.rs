@@ -19,7 +19,7 @@ pub async fn crawl(
 
     let a_selector = Selector::parse("a[href]").unwrap();
 
-    // 簡易クローラー (安全のため最大100ページに制限)
+    // crawler (max:100 because purpose is vuln scan)
     while let Some(current_url) = to_visit.pop() {
         let current_str = current_url.to_string();
         if visited.contains(&current_str) || visited.len() >= 100 {
@@ -32,7 +32,7 @@ pub async fn crawl(
             Err(_) => continue,
         };
 
-        // HTMLコンテンツのみをパース
+        // HTML content parse
         if let Some(ct) = response.headers().get(CONTENT_TYPE) {
             if !ct.to_str().unwrap_or("").contains("text/html") {
                 continue;
@@ -51,25 +51,25 @@ pub async fn crawl(
         for element in document.select(&a_selector) {
             if let Some(href) = element.value().attr("href") {
                 if let Ok(parsed_link) = current_url.join(href) {
-                    // フラグメント(#)の除外
+                    // replace fragmnt
                     let mut clean_link = parsed_link.clone();
                     clean_link.set_fragment(None);
                     let clean_str = clean_link.to_string();
 
                     if let Some(link_host) = clean_link.host_str() {
-                        // ルートドメイン不一致の外部リンクは除外
+                        
                         if !link_host.ends_with(root_domain) {
                             continue;
                         }
 
-                        // 同一ホスト (完全一致)
+                        // same origin host
                         if link_host == target_host {
                             target_urls.insert(clean_str.clone());
                             if !visited.contains(&clean_str) {
                                 to_visit.push(clean_link);
                             }
                         } else {
-                            // サブドメイン違い
+                            // subdomain
                             subdomain_urls.insert(clean_str);
                         }
                     }
