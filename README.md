@@ -37,8 +37,8 @@ Build the binary from the source code:
 
 ```bash
 # Clone the repository
-git clone [https://github.com/](https://github.com/)<your-username>/peacemaker.git
-cd peacemaker
+git clone [https://github.com/](https://github.com/G01d3nW01f/PeaceMaker.git)
+cd PeaceMaker
 
 # Build for release
 cargo build --release
